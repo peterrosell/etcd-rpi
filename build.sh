@@ -12,12 +12,25 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+set -xe
 
-VERSION=${ETCD_VERSION:-HEAD}
+ETCD_VERSION=$1
 
-git clone https://github.com/coreos/etcd.git
-git checkout $VERSION
-cp Dockerfile ./etcd/Dockerfile
+VERSION=${ETCD_VERSION:-master}
+
+if [ "${VERSION:0:5}" == "tags/" ]; then
+    DOCKER_VERSION=${VERSION:6}
+else
+    DOCKER_VERSION=$VERSION
+fi
+
+if [ ! -d etcd ]; then
+    git clone https://github.com/coreos/etcd.git
+else
+    echo "etcd is already cloned. Will use the current clone. If you want a newer version of etcd just delete the etcd directory and rerun the build script."
+fi
 cd etcd
+git checkout $VERSION
+cp ../Dockerfile Dockerfile
 curl -fsSL -o go-wrapper https://raw.githubusercontent.com/docker-library/golang/master/go-wrapper
-docker build -t etcd .
+docker build -t peterrosell/etcd-rpi:$DOCKER_VERSION .
