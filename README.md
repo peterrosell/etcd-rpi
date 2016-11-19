@@ -6,7 +6,7 @@ To build a new docker image from source you just run the build script with a git
 
 Example:
 
-	./build.sh tags/2.2.3
+	./build.sh tags/v2.3.7
 
 ## Push docker image
 
@@ -16,7 +16,7 @@ Example:
 
 The environment variable GOMAXPROCS specifies how many CPU cores the Go process will use. 
 If you only run etcd on the RPi use 4 cores to use the full capacity.
-All parameters to the image are forwarded to the etcd process.
+All parameters for the image are forwarded to the etcd process.
 
 	docker run -d --env GOMAXPROCS=4 -v /var/lib/etcd:/var/lib/etcd -p 2379:2379 -p 2380:2380 --name=etcd peterrosell/etcd-rpi:2.2.3 
 	-name etcd1 
