@@ -23,14 +23,33 @@ if [ "${VERSION:0:5}" == "tags/" ]; then
 else
     DOCKER_VERSION=$VERSION
 fi
+if [ "${DOCKER_VERSION:0:1}" == "v" ]; then
+    DOCKER_VERSION=${DOCKER_VERSION:1}
+fi
 
+mkdir -p .working
+cd .working
+
+# Clone and checkout etcd from github
 if [ ! -d etcd ]; then
-    git clone https://github.com/coreos/etcd.git
+    git clone https://github.com/etcd-io/etcd.git
 else
     echo "etcd is already cloned. Will use the current clone. If you want a newer version of etcd just delete the etcd directory and rerun the build script."
 fi
 cd etcd
 git checkout $VERSION
-cp ../Dockerfile Dockerfile
-curl -fsSL -o go-wrapper https://raw.githubusercontent.com/docker-library/golang/master/go-wrapper
+
+# Build it for armv7
+go mod vendor
+env GOOS=linux GOARCH=arm GOARM=7 ./build
+cd ..
+
+# Fetch the binaries from the build
+mkdir -p package
+cp etcd/bin/etcd* package
+cp ../Dockerfile .
 docker build -t peterrosell/etcd-rpi:$DOCKER_VERSION .
+docker push peterrosell/etcd-rpi:$DOCKER_VERSION
+
+#curl -fsSL -o go-wrapper https://raw.githubusercontent.com/docker-library/golang/master/go-wrapper
+#docker build -t peterrosell/etcd-rpi:$DOCKER_VERSION .
