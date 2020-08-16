@@ -48,7 +48,7 @@ cd ..
 mkdir -p package
 cp etcd/bin/etcd* package
 cp ../Dockerfile .
-docker build -t peterrosell/etcd-rpi:$DOCKER_VERSION .
+docker buildx build --platform linux/arm/v7 -t peterrosell/etcd-rpi:$DOCKER_VERSION .
 docker push peterrosell/etcd-rpi:$DOCKER_VERSION
 
 #curl -fsSL -o go-wrapper https://raw.githubusercontent.com/docker-library/golang/master/go-wrapper
